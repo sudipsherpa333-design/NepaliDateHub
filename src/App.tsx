@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { AnimatedBackground } from "./components/AnimatedBackground";
 import { Dashboard } from "./components/calculators/Dashboard";
 import { EmiCalculator } from "./components/calculators/EmiCalculator";
@@ -422,6 +423,7 @@ export default function App() {
         </div>
       </footer>
       <Analytics />
+      <SpeedInsights />
     </div>
   );
 }
