@@ -13,7 +13,7 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "admin" && password === "password9813@#$") {
+    if (email === "admin" && password === "admin9813@#$") {
       localStorage.setItem("calchub_admin_auth", "true");
       onLogin();
     } else {
