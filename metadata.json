@@ -1,5 +1,5 @@
 {
-  "name": "NepaliDateHub",
-  "description": "A comprehensive date conversion and management platform for Nepali dates (BS to AD and AD to BS).",
+  "name": "CalcHub Nepal",
+  "description": "A comprehensive multi-calculator web application with EMI, Age, GST, and Tax calculators for Nepal.",
   "requestFramePermissions": []
 }
