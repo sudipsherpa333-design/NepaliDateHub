@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { Code, Terminal, Server, Key, Copy, CheckCircle2 } from "lucide-react";
+import { Code, Terminal, Server, Key, Copy, CheckCircle2, Globe, AlertTriangle } from "lucide-react";
 
 export function ApiDocumentation() {
   const [copiedEndpoint, setCopiedEndpoint] = useState<string | null>(null);
@@ -79,6 +79,22 @@ export function ApiDocumentation() {
                   <span>Convert Date</span>
                   <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded font-mono uppercase">GET</span>
                 </a>
+              </li>
+              <li>
+                <a href="#calculate-gst" className="text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 transition-colors flex items-center justify-between">
+                  <span>Calculate GST</span>
+                  <span className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-[10px] px-2 py-0.5 rounded font-mono uppercase">POST</span>
+                </a>
+              </li>
+            </ul>
+
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mt-8 mb-4 flex items-center">
+              <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
+              Errors
+            </h3>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <a href="#error-handling" className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors">Error Handling</a>
               </li>
             </ul>
           </div>
@@ -225,6 +241,109 @@ export function ApiDocumentation() {
                   </pre>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Endpoint: Calculate GST */}
+          <div id="calculate-gst" className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="border-b border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <span className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400 px-3 py-1 rounded-md font-mono text-sm font-bold">POST</span>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white font-mono">/calculate/gst</h3>
+              </div>
+            </div>
+            <div className="p-6 space-y-6">
+              <p className="text-gray-600 dark:text-gray-300">
+                Adds or extracts Value Added Tax (VAT) / GST from a given amount.
+              </p>
+              
+              <div>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Request Body</h4>
+                <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto relative group">
+                  <button 
+                    onClick={() => copyToClipboard(`{\n  "amount": 5000,\n  "rate": 13,\n  "action": "add"\n}`, "req-gst")}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    {copiedEndpoint === "req-gst" ? <CheckCircle2 className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
+                  </button>
+                  <pre className="text-gray-300 font-mono text-sm">
+{`{
+  "amount": 5000,
+  "rate": 13,
+  "action": "add" // or "extract"
+}`}
+                  </pre>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Response</h4>
+                <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                  <pre className="text-gray-300 font-mono text-sm">
+{`{
+  "success": true,
+  "data": {
+    "originalAmount": 5000,
+    "gstAmount": 650,
+    "totalAmount": 5650,
+    "rate": 13,
+    "action": "add"
+  }
+}`}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Error Handling Section */}
+          <div id="error-handling" className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <AlertTriangle className="h-6 w-6 mr-3 text-red-500" />
+              Error Handling
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              The API uses standard HTTP status codes to indicate the success or failure of a request.
+            </p>
+            <div className="overflow-x-auto mb-6">
+              <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" className="px-6 py-3">Status Code</th>
+                    <th scope="col" className="px-6 py-3">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td className="px-6 py-4 font-mono font-medium text-green-600 dark:text-green-400">200 OK</td>
+                    <td className="px-6 py-4">The request was successful.</td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td className="px-6 py-4 font-mono font-medium text-amber-600 dark:text-amber-400">400 Bad Request</td>
+                    <td className="px-6 py-4">The request was invalid or missing required parameters.</td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td className="px-6 py-4 font-mono font-medium text-red-600 dark:text-red-400">401 Unauthorized</td>
+                    <td className="px-6 py-4">The API key is missing or invalid.</td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td className="px-6 py-4 font-mono font-medium text-purple-600 dark:text-purple-400">429 Too Many Requests</td>
+                    <td className="px-6 py-4">You have exceeded your rate limit.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Error Response Format</h4>
+            <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+              <pre className="text-gray-300 font-mono text-sm">
+{`{
+  "success": false,
+  "error": {
+    "code": "INVALID_PARAMETERS",
+    "message": "The 'principal' field must be a positive number."
+  }
+}`}
+              </pre>
             </div>
           </div>
 

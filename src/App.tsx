@@ -23,12 +23,35 @@ import { PrivacyPolicy } from "./components/pages/PrivacyPolicy";
 import { TermsOfService } from "./components/pages/TermsOfService";
 import { ApiDocumentation } from "./components/pages/ApiDocumentation";
 
-type CalculatorType = "dashboard" | "emi" | "age" | "gst" | "tax" | "privacy" | "terms" | "api";
+import { UnitConverter } from "./components/calculators/UnitConverter";
+import { LoanCalculator } from "./components/calculators/LoanCalculator";
+import { TimeDifferenceCalculator } from "./components/calculators/TimeDifferenceCalculator";
+import { BmiCalculator } from "./components/calculators/BmiCalculator";
+import { BlogView } from "./components/blog/BlogView";
+import { AdminLogin } from "./components/admin/AdminLogin";
+import { AdminDashboard } from "./components/admin/AdminDashboard";
+
+type CalculatorType = "dashboard" | "emi" | "age" | "gst" | "tax" | "privacy" | "terms" | "api" | "unit" | "loan" | "time" | "bmi" | "blog" | "admin";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<CalculatorType>("dashboard");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+
+  React.useEffect(() => {
+    const auth = localStorage.getItem("calchub_admin_auth");
+    if (auth === "true") {
+      setIsAdminLoggedIn(true);
+    }
+  }, []);
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem("calchub_admin_auth");
+    setIsAdminLoggedIn(false);
+    setActiveTab("dashboard");
+  };
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -63,6 +86,13 @@ export default function App() {
       icon: <Landmark className="h-4 w-4" />,
       color: "text-purple-600",
       bg: "bg-purple-50 dark:bg-purple-900/40",
+    },
+    {
+      id: "blog",
+      label: "Blog",
+      icon: <Globe className="h-4 w-4" />,
+      color: "text-indigo-600",
+      bg: "bg-indigo-50 dark:bg-indigo-900/40",
     },
   ];
 
@@ -109,9 +139,15 @@ export default function App() {
             </div>
 
             <div className="hidden md:flex items-center space-x-4">
-              <button className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <Globe className="h-5 w-5" />
-              </button>
+              {isAdminLoggedIn && (
+                <button
+                  onClick={() => setActiveTab("admin")}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "admin" ? "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 shadow-sm" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 dark:text-gray-300 dark:hover:bg-gray-800/50"}`}
+                >
+                  <Settings className="h-4 w-4" />
+                  <span>Admin</span>
+                </button>
+              )}
               <button
                 onClick={toggleTheme}
                 className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -122,7 +158,10 @@ export default function App() {
                   <Moon className="h-5 w-5" />
                 )}
               </button>
-              <button className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <button 
+                onClick={() => setActiveTab("admin")}
+                className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
                 <Settings className="h-5 w-5" />
               </button>
             </div>
@@ -244,6 +283,76 @@ export default function App() {
               transition={{ type: "spring", bounce: 0, duration: 0.5 }}
             >
               <TaxCalculator />
+            </motion.div>
+          )}
+          {activeTab === "unit" && (
+            <motion.div
+              key="unit"
+              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+            >
+              <UnitConverter />
+            </motion.div>
+          )}
+          {activeTab === "loan" && (
+            <motion.div
+              key="loan"
+              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+            >
+              <LoanCalculator />
+            </motion.div>
+          )}
+          {activeTab === "time" && (
+            <motion.div
+              key="time"
+              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+            >
+              <TimeDifferenceCalculator />
+            </motion.div>
+          )}
+          {activeTab === "bmi" && (
+            <motion.div
+              key="bmi"
+              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+            >
+              <BmiCalculator />
+            </motion.div>
+          )}
+          {activeTab === "blog" && (
+            <motion.div
+              key="blog"
+              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+            >
+              <BlogView />
+            </motion.div>
+          )}
+          {activeTab === "admin" && (
+            <motion.div
+              key="admin"
+              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+            >
+              {isAdminLoggedIn ? (
+                <AdminDashboard onLogout={handleAdminLogout} />
+              ) : (
+                <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} />
+              )}
             </motion.div>
           )}
           {activeTab === "privacy" && (

@@ -5,11 +5,15 @@ import {
   Percent,
   Landmark,
   ArrowRight,
+  ArrowRightLeft,
+  Clock,
+  Activity,
+  Banknote
 } from "lucide-react";
 import { motion } from "motion/react";
 
 interface DashboardProps {
-  onSelectCalculator: (calc: "emi" | "age" | "gst" | "tax") => void;
+  onSelectCalculator: (calc: "emi" | "age" | "gst" | "tax" | "unit" | "loan" | "time" | "bmi") => void;
 }
 
 export function Dashboard({ onSelectCalculator }: DashboardProps) {
@@ -45,6 +49,38 @@ export function Dashboard({ onSelectCalculator }: DashboardProps) {
       icon: <Landmark className="h-8 w-8 text-purple-500" />,
       color: "bg-purple-50 dark:bg-purple-900/20",
       borderColor: "border-purple-200 dark:border-purple-800",
+    },
+    {
+      id: "unit",
+      name: "Unit Converter",
+      description: "Convert weight and length units instantly",
+      icon: <ArrowRightLeft className="h-8 w-8 text-indigo-500" />,
+      color: "bg-indigo-50 dark:bg-indigo-900/20",
+      borderColor: "border-indigo-200 dark:border-indigo-800",
+    },
+    {
+      id: "loan",
+      name: "Loan Interest",
+      description: "Calculate simple interest on loans and investments",
+      icon: <Banknote className="h-8 w-8 text-teal-500" />,
+      color: "bg-teal-50 dark:bg-teal-900/20",
+      borderColor: "border-teal-200 dark:border-teal-800",
+    },
+    {
+      id: "time",
+      name: "Time Difference",
+      description: "Calculate exact duration between two dates",
+      icon: <Clock className="h-8 w-8 text-rose-500" />,
+      color: "bg-rose-50 dark:bg-rose-900/20",
+      borderColor: "border-rose-200 dark:border-rose-800",
+    },
+    {
+      id: "bmi",
+      name: "BMI Calculator",
+      description: "Check your Body Mass Index and health category",
+      icon: <Activity className="h-8 w-8 text-orange-500" />,
+      color: "bg-orange-50 dark:bg-orange-900/20",
+      borderColor: "border-orange-200 dark:border-orange-800",
     },
   ];
 
