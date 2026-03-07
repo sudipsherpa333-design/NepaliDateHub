@@ -11,12 +11,11 @@ import {
   Banknote
 } from "lucide-react";
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 
-interface DashboardProps {
-  onSelectCalculator: (calc: "emi" | "age" | "gst" | "tax" | "unit" | "loan" | "time" | "bmi") => void;
-}
+export function Dashboard() {
+  const navigate = useNavigate();
 
-export function Dashboard({ onSelectCalculator }: DashboardProps) {
   const calculators = [
     {
       id: "emi",
@@ -25,6 +24,7 @@ export function Dashboard({ onSelectCalculator }: DashboardProps) {
       icon: <Calculator className="h-8 w-8 text-blue-500" />,
       color: "bg-blue-50 dark:bg-blue-900/20",
       borderColor: "border-blue-200 dark:border-blue-800",
+      path: "/emi"
     },
     {
       id: "age",
@@ -33,6 +33,7 @@ export function Dashboard({ onSelectCalculator }: DashboardProps) {
       icon: <Calendar className="h-8 w-8 text-emerald-500" />,
       color: "bg-emerald-50 dark:bg-emerald-900/20",
       borderColor: "border-emerald-200 dark:border-emerald-800",
+      path: "/age"
     },
     {
       id: "gst",
@@ -41,6 +42,7 @@ export function Dashboard({ onSelectCalculator }: DashboardProps) {
       icon: <Percent className="h-8 w-8 text-amber-500" />,
       color: "bg-amber-50 dark:bg-amber-900/20",
       borderColor: "border-amber-200 dark:border-amber-800",
+      path: "/gst"
     },
     {
       id: "tax",
@@ -49,6 +51,7 @@ export function Dashboard({ onSelectCalculator }: DashboardProps) {
       icon: <Landmark className="h-8 w-8 text-purple-500" />,
       color: "bg-purple-50 dark:bg-purple-900/20",
       borderColor: "border-purple-200 dark:border-purple-800",
+      path: "/tax"
     },
     {
       id: "unit",
@@ -57,6 +60,7 @@ export function Dashboard({ onSelectCalculator }: DashboardProps) {
       icon: <ArrowRightLeft className="h-8 w-8 text-indigo-500" />,
       color: "bg-indigo-50 dark:bg-indigo-900/20",
       borderColor: "border-indigo-200 dark:border-indigo-800",
+      path: "/unit"
     },
     {
       id: "loan",
@@ -65,6 +69,7 @@ export function Dashboard({ onSelectCalculator }: DashboardProps) {
       icon: <Banknote className="h-8 w-8 text-teal-500" />,
       color: "bg-teal-50 dark:bg-teal-900/20",
       borderColor: "border-teal-200 dark:border-teal-800",
+      path: "/loan"
     },
     {
       id: "time",
@@ -73,6 +78,7 @@ export function Dashboard({ onSelectCalculator }: DashboardProps) {
       icon: <Clock className="h-8 w-8 text-rose-500" />,
       color: "bg-rose-50 dark:bg-rose-900/20",
       borderColor: "border-rose-200 dark:border-rose-800",
+      path: "/time"
     },
     {
       id: "bmi",
@@ -81,6 +87,7 @@ export function Dashboard({ onSelectCalculator }: DashboardProps) {
       icon: <Activity className="h-8 w-8 text-orange-500" />,
       color: "bg-orange-50 dark:bg-orange-900/20",
       borderColor: "border-orange-200 dark:border-orange-800",
+      path: "/bmi"
     },
   ];
 
@@ -124,7 +131,7 @@ export function Dashboard({ onSelectCalculator }: DashboardProps) {
               transition: { type: "spring", bounce: 0.4, duration: 0.4 },
             }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => onSelectCalculator(calc.id as any)}
+            onClick={() => navigate(calc.path)}
             className={`cursor-pointer rounded-3xl p-6 border ${calc.borderColor} ${calc.color} shadow-sm hover:shadow-md transition-all duration-300 group`}
           >
             <div className="flex items-start justify-between">
