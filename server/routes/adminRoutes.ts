@@ -12,7 +12,7 @@ export const initializeAdmin = async () => {
     if (adminCount === 0) {
       const admin = new AdminUser({
         username: "admin",
-        password: "admin9813@#$", // In a real app, this should be hashed using bcrypt
+        password: "admin9813@#$", // for production, hash using bcrypt
       });
       await admin.save();
       console.log("Admin user initialized in database");
@@ -25,29 +25,31 @@ export const initializeAdmin = async () => {
 // Admin login route
 router.post("/login", async (req, res) => {
   try {
-    await connectDB();
+    await connectDB(); // ensures DB is ready
+
     const { username, password } = req.body;
-    
+
     if (!username || !password) {
-      return res.status(400).json({ message: "Username and password are required" });
+      return res.status(400).json({ success: false, message: "Username and password are required" });
     }
 
     const admin = await AdminUser.findOne({ username });
-    
-    if (!admin) {
-      return res.status(401).json({ message: "Invalid credentials" });
+
+    if (!admin || admin.password !== password) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
-    // In a real app, use bcrypt.compare
-    if (admin.password !== password) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // In a real app, generate and return a JWT token here
-    res.json({ message: "Login successful", success: true });
+    // For now, return a success message; can add JWT here later
+    return res.status(200).json({ success: true, message: "Login successful" });
   } catch (error: any) {
     console.error("Login error:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+
+    // Always return JSON to avoid frontend parse errors
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 });
 
