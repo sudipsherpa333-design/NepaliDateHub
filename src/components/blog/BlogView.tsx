@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Search, Tag, Calendar, ChevronRight, Clock, Eye, Heart, Share2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { CommentSection } from "./CommentSection";
 
 export interface BlogPost {
   _id: string;
@@ -229,6 +230,8 @@ export function BlogView() {
                 </div>
               </div>
             )}
+            
+            <CommentSection postId={selectedPost._id} />
           </div>
         </div>
       </motion.div>

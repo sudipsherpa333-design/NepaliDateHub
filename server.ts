@@ -7,8 +7,10 @@ import path from "path";
 import blogRoutes from "./server/routes/blogRoutes";
 import adminRoutes, { initializeAdmin } from "./server/routes/adminRoutes";
 import uploadRoutes from "./server/routes/uploadRoutes";
+import commentRoutes from "./server/routes/commentRoutes";
 
 import { fileURLToPath } from "url";
+import { connectDB } from "./server/db";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,33 +31,27 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Serve uploaded images statically
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-
-// Serverless-friendly MongoDB connection
-const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) {
-    return;
-  }
-  try {
-    await mongoose.connect(MONGODB_URI);
-    console.log("Connected to MongoDB");
-    await initializeAdmin();
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-    // Graceful handling: log error but don't crash the app
-  }
-};
+const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true";
+app.use("/uploads", express.static(isVercel ? "/tmp/uploads" : path.join(process.cwd(), "uploads")));
 
 // Establish database connection on startup
-connectDB();
+connectDB().then(() => {
+  initializeAdmin();
+}).catch(console.error);
 
 // API Routes
 app.use("/api/blog", blogRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/comments", commentRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
+});
+
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error("Global error handler caught:", err);
+  res.status(500).json({ message: "Internal Server Error", error: err.message });
 });
 
 app.get("/api/db-status", async (req, res) => {

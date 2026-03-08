@@ -4,6 +4,7 @@ import { Plus, Edit2, Trash2, Eye, EyeOff, Save, X, LogOut, Image as ImageIcon, 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { BlogPost } from "../blog/BlogView";
+import { AdminComments } from "./AdminComments";
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -458,6 +459,8 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           </div>
         )}
       </div>
+
+      <AdminComments />
     </div>
   );
 }

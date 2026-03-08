@@ -1,5 +1,6 @@
 import express from "express";
 import { BlogPost } from "../models/BlogPost";
+import { connectDB } from "../db";
 
 const router = express.Router();
 
@@ -20,6 +21,7 @@ const calculateReadingTime = (content: string) => {
 // Get all published posts (with pagination and search)
 router.get("/", async (req, res) => {
   try {
+    await connectDB();
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.q as string;
@@ -58,6 +60,7 @@ router.get("/", async (req, res) => {
 // Get single post by slug
 router.get("/:slug", async (req, res) => {
   try {
+    await connectDB();
     const post = await BlogPost.findOneAndUpdate(
       { slug: req.params.slug, status: "published" },
       { $inc: { views: 1 } },
@@ -75,16 +78,19 @@ router.get("/:slug", async (req, res) => {
 // Get all posts (including drafts) for admin
 router.get("/admin/all", async (req, res) => {
   try {
+    await connectDB();
     const posts = await BlogPost.find().sort({ createdAt: -1 });
     res.json(posts);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching posts" });
+  } catch (error: any) {
+    console.error("Error fetching admin posts:", error);
+    res.status(500).json({ message: "Error fetching posts", error: error.message });
   }
 });
 
 // Create post
 router.post("/create", async (req, res) => {
   try {
+    await connectDB();
     const { title, excerpt, content, category, status, tags, coverImage } = req.body;
     
     if (!title || !excerpt || !content) {
@@ -127,6 +133,7 @@ router.post("/create", async (req, res) => {
 // Update post
 router.put("/:id", async (req, res) => {
   try {
+    await connectDB();
     const { title, excerpt, content, category, status, tags, coverImage } = req.body;
     
     if (!title || !excerpt || !content) {
@@ -159,6 +166,7 @@ router.put("/:id", async (req, res) => {
 // Delete post
 router.delete("/:id", async (req, res) => {
   try {
+    await connectDB();
     const post = await BlogPost.findByIdAndDelete(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
     res.json({ message: "Post deleted successfully" });
@@ -170,6 +178,7 @@ router.delete("/:id", async (req, res) => {
 // Like post
 router.post("/:id/like", async (req, res) => {
   try {
+    await connectDB();
     const { deviceId } = req.body;
     
     if (!deviceId) {

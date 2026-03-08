@@ -1,11 +1,13 @@
 import express from "express";
 import { AdminUser } from "../models/AdminUser";
+import { connectDB } from "../db";
 
 const router = express.Router();
 
 // Initialize admin user if it doesn't exist
 export const initializeAdmin = async () => {
   try {
+    await connectDB();
     const adminCount = await AdminUser.countDocuments();
     if (adminCount === 0) {
       const admin = new AdminUser({
@@ -23,6 +25,7 @@ export const initializeAdmin = async () => {
 // Admin login route
 router.post("/login", async (req, res) => {
   try {
+    await connectDB();
     const { username, password } = req.body;
     
     if (!username || !password) {
