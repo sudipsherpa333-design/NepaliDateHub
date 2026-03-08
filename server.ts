@@ -22,23 +22,26 @@ app.use(express.urlencoded({ extended: true }));
 // --- MongoDB Connection (Serverless-friendly) ---
 declare global {
   // eslint-disable-next-line no-var
-  var mongoose: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
+  var mongooseCache: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
 }
 
-let cached = global.mongoose;
+let cached = global.mongooseCache;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = global.mongooseCache = { conn: null, promise: null };
 }
 
-export async function connectDB() {
+export async function connectDB(): Promise<typeof mongoose> {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
     const uri = process.env.MONGODB_URI as string;
     if (!uri) throw new Error("MONGODB_URI not set");
 
-    cached.promise = mongoose.connect(uri, { bufferCommands: false }).then((mongoose) => mongoose);
+    cached.promise = mongoose.connect(uri, { bufferCommands: false }).then((conn) => {
+      cached.conn = conn;
+      return cached.conn;
+    });
   }
 
   cached.conn = await cached.promise;
@@ -55,7 +58,7 @@ app.use("/api/comments", commentRoutes);
 app.get("/api/health", async (req, res) => {
   try {
     await connectDB();
-    res.json({ status: "ok", database: "connected" });
+    res.status(200).json({ status: "ok", database: "connected" });
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ status: "error", message: err.message });
@@ -72,10 +75,7 @@ app.get("*", (req, res) => {
 // --- Error Handler ---
 app.use((err: any, req: any, res: any, next: any) => {
   console.error(err);
-  res.status(500).json({
-    message: "Internal Server Error",
-    error: err.message,
-  });
+  res.status(500).json({ message: "Internal Server Error", error: err.message });
 });
 
 export default app;
