@@ -1,12 +1,9 @@
 // api/index.ts
-import type { VercelRequest, VercelResponse } from "@vercel/node";
 import app, { connectDB } from "../server";
 
-// Ensure DB connects once per serverless function instance
-connectDB().catch((err) => {
-  console.error("MongoDB connection failed:", err);
-});
+// Ensure DB connection
+connectDB().catch(console.error);
 
-export default (req: VercelRequest, res: VercelResponse) => {
+export default (req: any, res: any) => {
   app(req, res);
 };
