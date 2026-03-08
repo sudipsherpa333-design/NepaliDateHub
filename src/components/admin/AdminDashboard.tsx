@@ -67,6 +67,11 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const handleSave = async () => {
     if (!editingPost) return;
 
+    if (!editingPost.title || !editingPost.excerpt || !editingPost.content) {
+      alert("Please fill in all required fields (Title, Excerpt, Content).");
+      return;
+    }
+
     try {
       const url = isCreating ? "/api/blog/create" : `/api/blog/${editingPost._id}`;
       const method = isCreating ? "POST" : "PUT";

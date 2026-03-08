@@ -7,44 +7,59 @@ import blogRoutes from "./server/routes/blogRoutes";
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://sudipsherpa333_db_user:IlIuFNAyO5jKq36S@calc.z8ggqua.mongodb.net/?appName=calc";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://sudipsherpa333_db_user:IlIuFNAyO5jKq36S@calc.z8ggqua.mongodb.net/calc?retryWrites=true&w=majority";
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-  app.use(cors());
-  app.use(express.json());
+app.use(cors());
+app.use(express.json());
 
-  // Connect to MongoDB
+// Serverless-friendly MongoDB connection
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected) return;
   try {
     await mongoose.connect(MONGODB_URI);
+    isConnected = true;
     console.log("Connected to MongoDB");
   } catch (error) {
     console.error("MongoDB connection error:", error);
   }
+};
 
-  // API Routes
-  app.use("/api/blog", blogRoutes);
+// Ensure DB connection on every request
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
-  });
+// API Routes
+app.use("/api/blog", blogRoutes);
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+// Setup Vite or Static serving
+if (process.env.NODE_ENV !== "production") {
+  async function setupVite() {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    app.use(express.static("dist"));
   }
+  setupVite();
+} else {
+  app.use(express.static("dist"));
+}
 
+// Only listen if not running in Vercel (Vercel uses serverless functions)
+if (!process.env.VERCEL) {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
 
-startServer();
+export default app;

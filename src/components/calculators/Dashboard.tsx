@@ -18,6 +18,15 @@ export function Dashboard() {
 
   const calculators = [
     {
+      id: "date",
+      name: "Date Converter",
+      description: "Convert dates between BS and AD instantly",
+      icon: <Calendar className="h-8 w-8 text-pink-500" />,
+      color: "bg-pink-50 dark:bg-pink-900/20",
+      borderColor: "border-pink-200 dark:border-pink-800",
+      path: "/date"
+    },
+    {
       id: "emi",
       name: "EMI Calculator",
       description: "Calculate Equated Monthly Installments for loans",

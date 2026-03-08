@@ -13,6 +13,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { Routes, Route, useLocation, useNavigate, Link } from "react-router-dom";
 import { AnimatedBackground } from "./components/AnimatedBackground";
 import { Dashboard } from "./components/calculators/Dashboard";
 import { EmiCalculator } from "./components/calculators/EmiCalculator";
@@ -27,14 +28,14 @@ import { UnitConverter } from "./components/calculators/UnitConverter";
 import { LoanCalculator } from "./components/calculators/LoanCalculator";
 import { TimeDifferenceCalculator } from "./components/calculators/TimeDifferenceCalculator";
 import { BmiCalculator } from "./components/calculators/BmiCalculator";
+import { DateConverter } from "./components/conversion/DateConverter";
 import { BlogView } from "./components/blog/BlogView";
 import { AdminLogin } from "./components/admin/AdminLogin";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 
-type CalculatorType = "dashboard" | "emi" | "age" | "gst" | "tax" | "privacy" | "terms" | "api" | "unit" | "loan" | "time" | "bmi" | "blog" | "admin";
-
 export default function App() {
-  const [activeTab, setActiveTab] = useState<CalculatorType>("dashboard");
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -50,7 +51,7 @@ export default function App() {
   const handleAdminLogout = () => {
     localStorage.removeItem("calchub_admin_auth");
     setIsAdminLoggedIn(false);
-    setActiveTab("dashboard");
+    navigate("/");
   };
 
   const toggleTheme = () => {
@@ -65,6 +66,7 @@ export default function App() {
       icon: <Calculator className="h-4 w-4" />,
       color: "text-blue-600",
       bg: "bg-blue-50 dark:bg-blue-900/40",
+      path: "/emi"
     },
     {
       id: "age",
@@ -72,6 +74,7 @@ export default function App() {
       icon: <Calendar className="h-4 w-4" />,
       color: "text-emerald-600",
       bg: "bg-emerald-50 dark:bg-emerald-900/40",
+      path: "/age"
     },
     {
       id: "gst",
@@ -79,6 +82,7 @@ export default function App() {
       icon: <Percent className="h-4 w-4" />,
       color: "text-amber-600",
       bg: "bg-amber-50 dark:bg-amber-900/40",
+      path: "/gst"
     },
     {
       id: "tax",
@@ -86,6 +90,7 @@ export default function App() {
       icon: <Landmark className="h-4 w-4" />,
       color: "text-purple-600",
       bg: "bg-purple-50 dark:bg-purple-900/40",
+      path: "/tax"
     },
     {
       id: "blog",
@@ -93,6 +98,7 @@ export default function App() {
       icon: <Globe className="h-4 w-4" />,
       color: "text-indigo-600",
       bg: "bg-indigo-50 dark:bg-indigo-900/40",
+      path: "/blog"
     },
   ];
 
@@ -107,7 +113,7 @@ export default function App() {
           <div className="flex justify-between h-16">
             <div
               className="flex items-center cursor-pointer"
-              onClick={() => setActiveTab("dashboard")}
+              onClick={() => navigate("/")}
             >
               <Calculator className="h-8 w-8 text-red-600 dark:text-red-500" />
               <span className="ml-2 text-xl font-bold font-sans tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-emerald-600 dark:from-red-500 dark:to-emerald-400">
@@ -117,9 +123,9 @@ export default function App() {
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center space-x-4">
-              {activeTab !== "dashboard" && (
+              {location.pathname !== "/" && (
                 <button
-                  onClick={() => setActiveTab("dashboard")}
+                  onClick={() => navigate("/")}
                   className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 dark:text-gray-300 dark:hover:bg-gray-800/50 mr-4"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -129,8 +135,8 @@ export default function App() {
               {navItems.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id as CalculatorType)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${activeTab === item.id ? `${item.color} ${item.bg} shadow-sm` : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 dark:text-gray-300 dark:hover:bg-gray-800/50"}`}
+                  onClick={() => navigate(item.path)}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${location.pathname === item.path ? `${item.color} ${item.bg} shadow-sm` : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 dark:text-gray-300 dark:hover:bg-gray-800/50"}`}
                 >
                   {item.icon}
                   <span>{item.label}</span>
@@ -141,8 +147,8 @@ export default function App() {
             <div className="hidden md:flex items-center space-x-4">
               {isAdminLoggedIn && (
                 <button
-                  onClick={() => setActiveTab("admin")}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "admin" ? "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 shadow-sm" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 dark:text-gray-300 dark:hover:bg-gray-800/50"}`}
+                  onClick={() => navigate("/admin")}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${location.pathname === "/admin" ? "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 shadow-sm" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 dark:text-gray-300 dark:hover:bg-gray-800/50"}`}
                 >
                   <Settings className="h-4 w-4" />
                   <span>Admin</span>
@@ -159,7 +165,7 @@ export default function App() {
                 )}
               </button>
               <button 
-                onClick={() => setActiveTab("admin")}
+                onClick={() => navigate("/admin")}
                 className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <Settings className="h-5 w-5" />
@@ -200,10 +206,10 @@ export default function App() {
               <div className="px-2 pt-2 pb-3 space-y-1">
                 <button
                   onClick={() => {
-                    setActiveTab("dashboard");
+                    navigate("/");
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-all ${activeTab === "dashboard" ? "text-gray-900 bg-gray-100 dark:bg-gray-800 dark:text-white shadow-sm" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 dark:text-gray-300 dark:hover:bg-gray-800/50"}`}
+                  className={`w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-all ${location.pathname === "/" ? "text-gray-900 bg-gray-100 dark:bg-gray-800 dark:text-white shadow-sm" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 dark:text-gray-300 dark:hover:bg-gray-800/50"}`}
                 >
                   <ArrowLeft className="h-5 w-5" />
                   <span>Dashboard</span>
@@ -212,10 +218,10 @@ export default function App() {
                   <button
                     key={item.id}
                     onClick={() => {
-                      setActiveTab(item.id as CalculatorType);
+                      navigate(item.path);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-all ${activeTab === item.id ? `${item.color} ${item.bg} shadow-sm` : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 dark:text-gray-300 dark:hover:bg-gray-800/50"}`}
+                    className={`w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-all ${location.pathname === item.path ? `${item.color} ${item.bg} shadow-sm` : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/50 dark:text-gray-300 dark:hover:bg-gray-800/50"}`}
                   >
                     {item.icon}
                     <span>{item.label}</span>
@@ -230,164 +236,162 @@ export default function App() {
       {/* Main Content */}
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         <AnimatePresence mode="wait">
-          {activeTab === "dashboard" && (
-            <motion.div
-              key="dashboard"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <Dashboard onSelectCalculator={setActiveTab} />
-            </motion.div>
-          )}
-          {activeTab === "emi" && (
-            <motion.div
-              key="emi"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <EmiCalculator />
-            </motion.div>
-          )}
-          {activeTab === "age" && (
-            <motion.div
-              key="age"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <AgeCalculator />
-            </motion.div>
-          )}
-          {activeTab === "gst" && (
-            <motion.div
-              key="gst"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <GstCalculator />
-            </motion.div>
-          )}
-          {activeTab === "tax" && (
-            <motion.div
-              key="tax"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <TaxCalculator />
-            </motion.div>
-          )}
-          {activeTab === "unit" && (
-            <motion.div
-              key="unit"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <UnitConverter />
-            </motion.div>
-          )}
-          {activeTab === "loan" && (
-            <motion.div
-              key="loan"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <LoanCalculator />
-            </motion.div>
-          )}
-          {activeTab === "time" && (
-            <motion.div
-              key="time"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <TimeDifferenceCalculator />
-            </motion.div>
-          )}
-          {activeTab === "bmi" && (
-            <motion.div
-              key="bmi"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <BmiCalculator />
-            </motion.div>
-          )}
-          {activeTab === "blog" && (
-            <motion.div
-              key="blog"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <BlogView />
-            </motion.div>
-          )}
-          {activeTab === "admin" && (
-            <motion.div
-              key="admin"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              {isAdminLoggedIn ? (
-                <AdminDashboard onLogout={handleAdminLogout} />
-              ) : (
-                <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} />
-              )}
-            </motion.div>
-          )}
-          {activeTab === "privacy" && (
-            <motion.div
-              key="privacy"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <PrivacyPolicy />
-            </motion.div>
-          )}
-          {activeTab === "terms" && (
-            <motion.div
-              key="terms"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <TermsOfService />
-            </motion.div>
-          )}
-          {activeTab === "api" && (
-            <motion.div
-              key="api"
-              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              <ApiDocumentation />
-            </motion.div>
-          )}
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <Dashboard />
+              </motion.div>
+            } />
+            <Route path="/emi" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <EmiCalculator />
+              </motion.div>
+            } />
+            <Route path="/age" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <AgeCalculator />
+              </motion.div>
+            } />
+            <Route path="/gst" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <GstCalculator />
+              </motion.div>
+            } />
+            <Route path="/tax" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <TaxCalculator />
+              </motion.div>
+            } />
+            <Route path="/unit" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <UnitConverter />
+              </motion.div>
+            } />
+            <Route path="/loan" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <LoanCalculator />
+              </motion.div>
+            } />
+            <Route path="/time" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <TimeDifferenceCalculator />
+              </motion.div>
+            } />
+            <Route path="/bmi" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <BmiCalculator />
+              </motion.div>
+            } />
+            <Route path="/date" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <DateConverter />
+              </motion.div>
+            } />
+            <Route path="/blog" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <BlogView />
+              </motion.div>
+            } />
+            <Route path="/admin" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                {isAdminLoggedIn ? (
+                  <AdminDashboard onLogout={handleAdminLogout} />
+                ) : (
+                  <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} />
+                )}
+              </motion.div>
+            } />
+            <Route path="/privacy" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <PrivacyPolicy />
+              </motion.div>
+            } />
+            <Route path="/terms" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <TermsOfService />
+              </motion.div>
+            } />
+            <Route path="/api-docs" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              >
+                <ApiDocumentation />
+              </motion.div>
+            } />
+          </Routes>
         </AnimatePresence>
       </main>
 
@@ -400,19 +404,19 @@ export default function App() {
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <button
-              onClick={() => setActiveTab("privacy")}
+              onClick={() => navigate("/privacy")}
               className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
             >
               Privacy Policy
             </button>
             <button
-              onClick={() => setActiveTab("terms")}
+              onClick={() => navigate("/terms")}
               className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
             >
               Terms of Service
             </button>
             <button
-              onClick={() => setActiveTab("api")}
+              onClick={() => navigate("/api-docs")}
               className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
             >
               API Documentation
