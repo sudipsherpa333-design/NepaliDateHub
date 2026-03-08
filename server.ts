@@ -1,14 +1,14 @@
-// server.ts
+// server/server.ts
 import express from "express";
-import mongoose from "mongoose";
 import cors from "cors";
-import dotenv from "dotenv";
 import path from "path";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-import blogRoutes from "./server/routes/blogRoutes";
-import adminRoutes from "./server/routes/adminRoutes";
-import uploadRoutes from "./server/routes/uploadRoutes";
-import commentRoutes from "./server/routes/commentRoutes";
+import blogRoutes from "./routes/blogRoutes";
+import adminRoutes from "./routes/adminRoutes";
+import uploadRoutes from "./routes/uploadRoutes";
+import commentRoutes from "./routes/commentRoutes";
 
 dotenv.config();
 
@@ -19,9 +19,8 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// --- MongoDB Connection (Serverless-friendly) ---
+// --- Serverless-friendly MongoDB Connection ---
 declare global {
-  // eslint-disable-next-line no-var
   var mongooseCache: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
 }
 
@@ -35,13 +34,16 @@ export async function connectDB(): Promise<typeof mongoose> {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    const uri = process.env.MONGODB_URI as string;
-    if (!uri) throw new Error("MONGODB_URI not set");
+    const uri = process.env.MONGODB_URI;
+    if (!uri) throw new Error("MONGODB_URI environment variable not set");
 
-    cached.promise = mongoose.connect(uri, { bufferCommands: false }).then((conn) => {
-      cached.conn = conn;
-      return cached.conn;
-    });
+    cached.promise = mongoose
+      .connect(uri, { bufferCommands: false })
+      .then((conn) => {
+        cached.conn = conn;
+        console.log("MongoDB connected");
+        return conn;
+      });
   }
 
   cached.conn = await cached.promise;
@@ -67,7 +69,6 @@ app.get("/api/health", async (req, res) => {
 
 // --- Static Frontend ---
 app.use(express.static(path.join(process.cwd(), "dist")));
-
 app.get("*", (req, res) => {
   res.sendFile(path.join(process.cwd(), "dist", "index.html"));
 });
