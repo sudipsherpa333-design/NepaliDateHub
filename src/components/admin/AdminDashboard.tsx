@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Plus, Edit2, Trash2, Eye, EyeOff, Save, X, LogOut, Image as ImageIcon } from "lucide-react";
+import { Plus, Edit2, Trash2, Eye, EyeOff, Save, X, LogOut, Image as ImageIcon, LayoutTemplate } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { BlogPost } from "../blog/BlogView";
 
 interface AdminDashboardProps {
@@ -13,6 +15,8 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [tagInput, setTagInput] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
 
   const fetchPosts = async () => {
     try {
@@ -26,6 +30,41 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       console.error("Error fetching posts:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: "cover" | "content") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      setIsUploading(true);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (target === "cover" && editingPost) {
+          setEditingPost({ ...editingPost, coverImage: data.url });
+        } else if (target === "content" && editingPost) {
+          const imageMarkdown = `\n![${file.name}](${data.url})\n`;
+          setEditingPost({ ...editingPost, content: (editingPost.content || "") + imageMarkdown });
+        }
+      } else {
+        alert("Failed to upload image.");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("An error occurred while uploading the image.");
+    } finally {
+      setIsUploading(false);
+      // Reset the file input
+      e.target.value = "";
     }
   };
 
@@ -167,17 +206,35 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cover Image URL</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <ImageIcon className="h-5 w-5 text-gray-400" />
+            <div className="flex space-x-2">
+              <div className="relative flex-grow">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <ImageIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  value={editingPost.coverImage || ""}
+                  onChange={(e) => setEditingPost({ ...editingPost, coverImage: e.target.value })}
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="https://example.com/image.jpg"
+                />
               </div>
-              <input
-                type="text"
-                value={editingPost.coverImage || ""}
-                onChange={(e) => setEditingPost({ ...editingPost, coverImage: e.target.value })}
-                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="https://example.com/image.jpg"
-              />
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, "cover")}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  disabled={isUploading}
+                />
+                <button
+                  type="button"
+                  className="px-4 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl transition-colors flex items-center h-full whitespace-nowrap"
+                  disabled={isUploading}
+                >
+                  {isUploading ? "Uploading..." : "Upload Local"}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -242,14 +299,58 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Content (Markdown supported)</label>
-            <textarea
-              value={editingPost.content}
-              onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
-              rows={12}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm"
-              placeholder="Write your post content here..."
-            />
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Content (Markdown supported)</label>
+              <div className="flex space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode(!previewMode)}
+                  className={`px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center ${
+                    previewMode 
+                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" 
+                      : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  }`}
+                >
+                  <LayoutTemplate className="w-4 h-4 mr-1.5" />
+                  {previewMode ? "Edit" : "Preview"}
+                </button>
+                {!previewMode && (
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, "content")}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      disabled={isUploading}
+                    />
+                    <button
+                      type="button"
+                      className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm transition-colors flex items-center"
+                      disabled={isUploading}
+                    >
+                      <ImageIcon className="w-4 h-4 mr-1.5" />
+                      {isUploading ? "Uploading..." : "Insert Image"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {previewMode ? (
+              <div className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[300px] prose prose-sm dark:prose-invert max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {editingPost.content || "*No content yet...*"}
+                </ReactMarkdown>
+              </div>
+            ) : (
+              <textarea
+                value={editingPost.content}
+                onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
+                rows={12}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm"
+                placeholder="Write your post content here..."
+              />
+            )}
           </div>
         </div>
       </motion.div>

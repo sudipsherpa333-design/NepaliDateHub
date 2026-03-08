@@ -11,13 +11,34 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "admin" && password === "admin9813@#$") {
-      localStorage.setItem("calchub_admin_auth", "true");
-      onLogin();
-    } else {
-      setError("Invalid credentials. Please try again.");
+    setError("");
+
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          localStorage.setItem("calchub_admin_auth", "true");
+          onLogin();
+        } else {
+          setError(data.message || "Invalid credentials. Please try again.");
+        }
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || "Invalid credentials. Please try again.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("An error occurred during login. Please try again later.");
     }
   };
 

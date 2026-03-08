@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Search, Tag, Calendar, ChevronRight, Clock, Eye, Heart, Share2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export interface BlogPost {
   _id: string;
@@ -15,9 +17,19 @@ export interface BlogPost {
   readingTime: number;
   views: number;
   likes: number;
+  likedBy?: string[];
   createdAt: string;
   status: "published" | "draft";
 }
+
+const getDeviceId = () => {
+  let deviceId = localStorage.getItem("calchub_device_id");
+  if (!deviceId) {
+    deviceId = "device-" + Date.now() + "-" + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem("calchub_device_id", deviceId);
+  }
+  return deviceId;
+};
 
 export function BlogView() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -105,10 +117,17 @@ export function BlogView() {
   const handleLike = async () => {
     if (!selectedPost) return;
     try {
-      const res = await fetch(`/api/blog/${selectedPost._id}/like`, { method: "POST" });
+      const deviceId = getDeviceId();
+      const res = await fetch(`/api/blog/${selectedPost._id}/like`, { 
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ deviceId })
+      });
       if (res.ok) {
         const data = await res.json();
-        setSelectedPost({ ...selectedPost, likes: data.likes });
+        setSelectedPost({ ...selectedPost, likes: data.likes, likedBy: data.likedBy });
       }
     } catch (error) {
       console.error("Error liking post:", error);
@@ -170,8 +189,15 @@ export function BlogView() {
               </div>
               
               <div className="flex space-x-2">
-                <button onClick={handleLike} className="p-2 rounded-full bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center">
-                  <Heart className="w-5 h-5 mr-1" /> {selectedPost.likes}
+                <button 
+                  onClick={handleLike} 
+                  className={`p-2 rounded-full transition-colors flex items-center ${
+                    selectedPost.likedBy?.includes(getDeviceId()) 
+                      ? "bg-red-50 text-red-500 dark:bg-red-900/30 dark:text-red-400" 
+                      : "bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  }`}
+                >
+                  <Heart className={`w-5 h-5 mr-1 ${selectedPost.likedBy?.includes(getDeviceId()) ? "fill-current" : ""}`} /> {selectedPost.likes}
                 </button>
                 <button className="p-2 rounded-full bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
                   <Share2 className="w-5 h-5" />
@@ -180,9 +206,9 @@ export function BlogView() {
             </div>
 
             <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 mt-8">
-              {selectedPost.content.split('\n').map((paragraph, idx) => (
-                <p key={idx} className="mb-4">{paragraph}</p>
-              ))}
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {selectedPost.content}
+              </ReactMarkdown>
             </div>
             
             {selectedPost.tags && selectedPost.tags.length > 0 && (

@@ -5,7 +5,9 @@ const router = express.Router();
 
 // Generate slug from title
 const generateSlug = (title: string) => {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+  if (!title) return "post-" + Date.now();
+  const slug = title.toString().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+  return slug || "post-" + Date.now();
 };
 
 // Calculate reading time
@@ -84,6 +86,11 @@ router.get("/admin/all", async (req, res) => {
 router.post("/create", async (req, res) => {
   try {
     const { title, excerpt, content, category, status, tags, coverImage } = req.body;
+    
+    if (!title || !excerpt || !content) {
+      return res.status(400).json({ message: "Missing required fields: title, excerpt, content" });
+    }
+
     let slug = generateSlug(title);
     
     // Ensure unique slug
@@ -111,8 +118,9 @@ router.post("/create", async (req, res) => {
 
     await post.save();
     res.status(201).json(post);
-  } catch (error) {
-    res.status(500).json({ message: "Error creating post", error });
+  } catch (error: any) {
+    console.error("Error creating post:", error);
+    res.status(500).json({ message: "Error creating post", error: error.message });
   }
 });
 
@@ -121,6 +129,10 @@ router.put("/:id", async (req, res) => {
   try {
     const { title, excerpt, content, category, status, tags, coverImage } = req.body;
     
+    if (!title || !excerpt || !content) {
+      return res.status(400).json({ message: "Missing required fields: title, excerpt, content" });
+    }
+
     const updateData: any = {
       title,
       excerpt,
@@ -138,8 +150,9 @@ router.put("/:id", async (req, res) => {
     const post = await BlogPost.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!post) return res.status(404).json({ message: "Post not found" });
     res.json(post);
-  } catch (error) {
-    res.status(500).json({ message: "Error updating post" });
+  } catch (error: any) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ message: "Error updating post", error: error.message });
   }
 });
 
@@ -157,13 +170,29 @@ router.delete("/:id", async (req, res) => {
 // Like post
 router.post("/:id/like", async (req, res) => {
   try {
-    const post = await BlogPost.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { likes: 1 } },
-      { new: true }
-    );
+    const { deviceId } = req.body;
+    
+    if (!deviceId) {
+      return res.status(400).json({ message: "Device ID is required to like a post" });
+    }
+
+    const post = await BlogPost.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
-    res.json({ likes: post.likes });
+
+    // Check if the device has already liked the post
+    if (post.likedBy && post.likedBy.includes(deviceId)) {
+      // User has already liked it, so we unlike it (toggle)
+      post.likedBy = post.likedBy.filter(id => id !== deviceId);
+      post.likes = Math.max(0, post.likes - 1);
+    } else {
+      // User hasn't liked it, so we add the like
+      if (!post.likedBy) post.likedBy = [];
+      post.likedBy.push(deviceId);
+      post.likes += 1;
+    }
+
+    await post.save();
+    res.json({ likes: post.likes, likedBy: post.likedBy });
   } catch (error) {
     res.status(500).json({ message: "Error liking post" });
   }

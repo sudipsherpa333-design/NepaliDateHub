@@ -4,7 +4,7 @@ import { Percent, ArrowRightLeft } from "lucide-react";
 
 export function GstCalculator() {
   const [amount, setAmount] = useState<number>(1000);
-  const [gstRate, setGstRate] = useState<number>(18);
+  const [gstRate, setGstRate] = useState<number | "custom">(18);
   const [customRate, setCustomRate] = useState<number>(0);
   const [mode, setMode] = useState<"add" | "remove">("add");
 

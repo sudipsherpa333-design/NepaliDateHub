@@ -12,6 +12,7 @@ const BlogPostSchema = new mongoose.Schema({
   readingTime: { type: Number, default: 0 },
   views: { type: Number, default: 0 },
   likes: { type: Number, default: 0 },
+  likedBy: [{ type: String }],
   status: { type: String, enum: ["draft", "published"], default: "draft" },
 }, { timestamps: true });
 

@@ -3,7 +3,15 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
+import path from "path";
 import blogRoutes from "./server/routes/blogRoutes";
+import adminRoutes, { initializeAdmin } from "./server/routes/adminRoutes";
+import uploadRoutes from "./server/routes/uploadRoutes";
+
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -14,32 +22,37 @@ if (!MONGODB_URI) {
 }
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT || 3000);
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// Serve uploaded images statically
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Serverless-friendly MongoDB connection
-let isConnected = false;
 const connectDB = async () => {
-  if (isConnected) return;
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
   try {
     await mongoose.connect(MONGODB_URI);
-    isConnected = true;
     console.log("Connected to MongoDB");
+    await initializeAdmin();
   } catch (error) {
     console.error("MongoDB connection error:", error);
+    // Graceful handling: log error but don't crash the app
   }
 };
 
-// Ensure DB connection on every request
-app.use(async (req, res, next) => {
-  await connectDB();
-  next();
-});
+// Establish database connection on startup
+connectDB();
 
 // API Routes
 app.use("/api/blog", blogRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
@@ -76,6 +89,9 @@ if (process.env.NODE_ENV !== "production") {
   setupVite();
 } else {
   app.use(express.static("dist"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "dist", "index.html"));
+  });
 }
 
 // Only listen if not running in Vercel (Vercel uses serverless functions)
