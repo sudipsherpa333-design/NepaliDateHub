@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Search, Tag, Calendar, ChevronRight, Clock, Eye, Heart, Share2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Helmet } from "react-helmet-async";
 import { CommentSection } from "./CommentSection";
 
 export interface BlogPost {
@@ -56,53 +57,6 @@ export function BlogView() {
     fetchPosts();
   }, [searchQuery, selectedCategory]);
 
-  useEffect(() => {
-    const updateMetaTag = (name: string, content: string, isProperty = false) => {
-      const selector = isProperty ? `meta[property="${name}"]` : `meta[name="${name}"]`;
-      let tag = document.querySelector(selector);
-      if (!tag) {
-        tag = document.createElement('meta');
-        if (isProperty) {
-          tag.setAttribute('property', name);
-        } else {
-          tag.setAttribute('name', name);
-        }
-        document.head.appendChild(tag);
-      }
-      tag.setAttribute('content', content);
-    };
-
-    if (selectedPost) {
-      document.title = `${selectedPost.title} | CalcHub Blog`;
-      updateMetaTag('description', selectedPost.excerpt);
-      updateMetaTag('keywords', selectedPost.tags?.join(', ') || 'finance, calculators, nepal');
-      updateMetaTag('og:title', `${selectedPost.title} | CalcHub Blog`, true);
-      updateMetaTag('og:description', selectedPost.excerpt, true);
-      updateMetaTag('og:type', 'article', true);
-      if (selectedPost.coverImage) {
-        updateMetaTag('og:image', selectedPost.coverImage, true);
-      }
-    } else {
-      document.title = "CalcHub Blog";
-      updateMetaTag('description', "Insights, guides, and updates on finance and utilities in Nepal.");
-      updateMetaTag('keywords', "blog, finance, nepal, calculators, utilities, tax, emi");
-      updateMetaTag('og:title', "CalcHub Blog", true);
-      updateMetaTag('og:description', "Insights, guides, and updates on finance and utilities in Nepal.", true);
-      updateMetaTag('og:type', 'website', true);
-      updateMetaTag('og:image', '', true);
-    }
-
-    return () => {
-      document.title = "CalcHub";
-      updateMetaTag('description', "CalcHub - Your ultimate utility and finance calculators.");
-      updateMetaTag('keywords', "calculator, finance, nepal, emi, tax, unit converter");
-      updateMetaTag('og:title', "CalcHub", true);
-      updateMetaTag('og:description', "CalcHub - Your ultimate utility and finance calculators.", true);
-      updateMetaTag('og:type', 'website', true);
-      updateMetaTag('og:image', '', true);
-    };
-  }, [selectedPost]);
-
   const viewPost = async (slug: string) => {
     try {
       const res = await fetch(`/api/blog/${slug}`);
@@ -144,6 +98,16 @@ export function BlogView() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
       >
+        <Helmet>
+          <title>{selectedPost.title} | CalcHub Blog</title>
+          <meta name="description" content={selectedPost.excerpt} />
+          <meta name="keywords" content={selectedPost.tags?.join(', ') || 'finance, calculators, nepal'} />
+          <meta property="og:title" content={`${selectedPost.title} | CalcHub Blog`} />
+          <meta property="og:description" content={selectedPost.excerpt} />
+          <meta property="og:type" content="article" />
+          {selectedPost.coverImage && <meta property="og:image" content={selectedPost.coverImage} />}
+        </Helmet>
+        
         {selectedPost.coverImage && (
           <div className="w-full h-64 md:h-96 relative">
             <img 
@@ -240,6 +204,15 @@ export function BlogView() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      <Helmet>
+        <title>CalcHub Blog | Insights & Guides</title>
+        <meta name="description" content="Insights, guides, and updates on finance and utilities in Nepal." />
+        <meta name="keywords" content="blog, finance, nepal, calculators, utilities, tax, emi" />
+        <meta property="og:title" content="CalcHub Blog" />
+        <meta property="og:description" content="Insights, guides, and updates on finance and utilities in Nepal." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       <div className="text-center space-y-4 mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
           CalcHub <span className="text-blue-600 dark:text-blue-500">Blog</span>

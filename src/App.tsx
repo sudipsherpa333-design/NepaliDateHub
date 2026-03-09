@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import {
   Calculator,
   Calendar,
@@ -106,6 +107,14 @@ export default function App() {
     <div
       className={`min-h-screen flex flex-col transition-colors duration-300 relative overflow-hidden ${isDarkMode ? "dark text-white" : "text-gray-900"}`}
     >
+      <Helmet>
+        <title>CalcHub Nepal | Finance & Utility Calculators</title>
+        <meta name="description" content="CalcHub - Your ultimate utility and finance calculators. Calculate EMI, Age, GST, Tax, and more." />
+        <meta name="keywords" content="calculator, finance, nepal, emi, tax, unit converter, age calculator, gst calculator" />
+        <meta property="og:title" content="CalcHub Nepal" />
+        <meta property="og:description" content="CalcHub - Your ultimate utility and finance calculators." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <AnimatedBackground />
       {/* Navigation */}
       <nav className="border-b border-gray-200/50 dark:border-gray-800/50 bg-white/60 dark:bg-gray-950/60 backdrop-blur-2xl sticky top-0 z-50 transition-colors duration-300">

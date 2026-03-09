@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || process.env.mongodb_MONGODB_URI;
 
 if (!MONGODB_URI) {
   console.error("Please define the MONGODB_URI environment variable inside .env or Vercel");
