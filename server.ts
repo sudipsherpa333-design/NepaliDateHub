@@ -41,6 +41,9 @@ app.get("/api/health", (req, res) => {
 
 app.get("/api/db-status", async (req, res) => {
   try {
+    // Attempt to connect to the database to get a true runtime status
+    await connectDB();
+    
     const state = mongoose.connection.readyState;
     const states = {
       0: "disconnected",
@@ -49,12 +52,20 @@ app.get("/api/db-status", async (req, res) => {
       3: "disconnecting",
       99: "uninitialized",
     };
+    
     res.json({ 
       status: states[state as keyof typeof states] || "unknown",
-      uri: MONGODB_URI.replace(/:([^:@]{3,})@/, ':***@') // Hide password in response
+      message: "🚀 MongoDB Connected Successfully!",
+      uri: MONGODB_URI ? MONGODB_URI.replace(/:([^:@]{3,})@/, ':***@') : "Not Set"
     });
   } catch (error: any) {
-    res.status(500).json({ status: "error", message: error.message });
+    console.error("❌ Database Status Check Failed:", error);
+    res.status(500).json({ 
+      status: "error", 
+      message: "❌ MongoDB Connection Error",
+      details: error.message,
+      uri: MONGODB_URI ? MONGODB_URI.replace(/:([^:@]{3,})@/, ':***@') : "Not Set"
+    });
   }
 });
 
