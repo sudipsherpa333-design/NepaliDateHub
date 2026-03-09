@@ -3,10 +3,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || process.env.mongodb_MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URL || process.env.MONGODB_URI || process.env.mongodb_MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable inside .env or Vercel");
+  throw new Error("MongoDB URI is missing! Check your Vercel Env Variables.");
 }
 
 let cached = (global as any).mongoose;
@@ -26,16 +26,17 @@ export async function connectDB() {
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      console.log("Connected to MongoDB");
+      console.log("🚀 MongoDB Connected Successfully!");
       return mongoose;
     });
   }
 
   try {
     cached.conn = await cached.promise;
-  } catch (e) {
+  } catch (error: any) {
     cached.promise = null;
-    throw e;
+    console.error("❌ MongoDB Connection Error:", error.message);
+    throw error;
   }
 
   return cached.conn;
