@@ -2,7 +2,6 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-import { createServer as createViteServer } from "vite";
 import path from "path";
 import blogRoutes from "./server/routes/blogRoutes.js";
 import adminRoutes, { initializeAdmin } from "./server/routes/adminRoutes.js";
@@ -72,6 +71,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Setup Vite or Static serving
 if (process.env.NODE_ENV !== "production") {
   async function setupVite() {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
