@@ -1,33 +1,16 @@
 import express from "express";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import { Image } from "../models/Image";
+import { connectDB } from "../db";
 
 const router = express.Router();
 
-// Ensure uploads directory exists
-const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true";
-const uploadDir = isVercel ? "/tmp/uploads" : path.join(process.cwd(), "uploads");
-
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Configure multer storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
-  },
-});
+// Configure multer storage to use memory
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit to stay under MongoDB 16MB document limit
   fileFilter: (req, file, cb) => {
     // Accept images only
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
@@ -37,18 +20,45 @@ const upload = multer({
   },
 });
 
-router.post("/", upload.single("image"), (req, res) => {
+router.post("/", upload.single("image"), async (req, res) => {
   try {
+    await connectDB();
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
+    // Save image to MongoDB
+    const image = new Image({
+      filename: req.file.originalname,
+      contentType: req.file.mimetype,
+      data: req.file.buffer,
+    });
+
+    await image.save();
+
     // Return the URL to access the uploaded file
-    const fileUrl = `/uploads/${req.file.filename}`;
+    const fileUrl = `/api/upload/${image._id}`;
     res.status(200).json({ url: fileUrl, message: "Image uploaded successfully" });
   } catch (error: any) {
     console.error("Upload error:", error);
     res.status(500).json({ message: "Error uploading image", error: error.message });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    await connectDB();
+    const image = await Image.findById(req.params.id);
+    
+    if (!image) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    res.set("Content-Type", image.contentType);
+    res.send(image.data);
+  } catch (error: any) {
+    console.error("Error fetching image:", error);
+    res.status(500).json({ message: "Error fetching image", error: error.message });
   }
 });
 
