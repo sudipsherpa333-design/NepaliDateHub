@@ -4,13 +4,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import path from "path";
-import blogRoutes from "./server/routes/blogRoutes";
-import adminRoutes, { initializeAdmin } from "./server/routes/adminRoutes";
-import uploadRoutes from "./server/routes/uploadRoutes";
-import commentRoutes from "./server/routes/commentRoutes";
+import blogRoutes from "./server/routes/blogRoutes.js";
+import adminRoutes, { initializeAdmin } from "./server/routes/adminRoutes.js";
+import uploadRoutes from "./server/routes/uploadRoutes.js";
+import commentRoutes from "./server/routes/commentRoutes.js";
 
 import { fileURLToPath } from "url";
-import { connectDB } from "./server/db";
+import { connectDB } from "./server/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

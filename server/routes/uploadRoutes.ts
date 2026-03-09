@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
-import { Image } from "../models/Image";
-import { connectDB } from "../db";
+import { Image } from "../models/Image.js";
+import { connectDB } from "../db.js";
 
 const router = express.Router();
 

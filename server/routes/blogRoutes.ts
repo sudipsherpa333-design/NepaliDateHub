@@ -1,6 +1,6 @@
 import express from "express";
-import { BlogPost } from "../models/BlogPost";
-import { connectDB } from "../db";
+import { BlogPost } from "../models/BlogPost.js";
+import { connectDB } from "../db.js";
 
 const router = express.Router();
 

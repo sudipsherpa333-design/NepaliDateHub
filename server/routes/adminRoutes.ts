@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { AdminUser } from "../models/AdminUser";
-import { connectDB } from "../db";
+import { AdminUser } from "../models/AdminUser.js";
+import { connectDB } from "../db.js";
 
 const router = express.Router();
 
