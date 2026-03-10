@@ -10,6 +10,7 @@ import commentRoutes from "./server/routes/commentRoutes.js";
 
 import { fileURLToPath } from "url";
 import { connectDB } from "./server/db.js";
+import { AdminUser } from "./server/models/AdminUser.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,6 +45,9 @@ app.get("/api/db-status", async (req, res) => {
     // Attempt to connect to the database to get a true runtime status
     await connectDB();
     
+    // Perform a simple operation to verify read access and authentication
+    const adminCount = await AdminUser.countDocuments();
+    
     const state = mongoose.connection.readyState;
     const states = {
       0: "disconnected",
@@ -56,13 +60,31 @@ app.get("/api/db-status", async (req, res) => {
     res.json({ 
       status: states[state as keyof typeof states] || "unknown",
       message: "🚀 MongoDB Connected Successfully!",
+      adminCount: adminCount,
       uri: MONGODB_URI ? MONGODB_URI.replace(/:([^:@]{3,})@/, ':***@') : "Not Set"
     });
   } catch (error: any) {
     console.error("❌ Database Status Check Failed:", error);
+    
+    let userFriendlyMessage = "❌ MongoDB Connection Error";
+    let actionRequired = "Check your database connection string and network settings.";
+    
+    // Check for specific MongoDB authentication errors
+    if (error.message && error.message.includes("bad auth")) {
+      userFriendlyMessage = "❌ MongoDB Authentication Failed";
+      actionRequired = "The username or password in your MONGODB_URI is incorrect. Please update it in your Vercel Environment Variables.";
+    } else if (error.message && error.message.includes("ENOTFOUND")) {
+      userFriendlyMessage = "❌ MongoDB Host Not Found";
+      actionRequired = "The database hostname in your MONGODB_URI is incorrect or unreachable.";
+    } else if (error.message && error.message.includes("IP")) {
+      userFriendlyMessage = "❌ MongoDB IP Blocked";
+      actionRequired = "Make sure you have added 0.0.0.0/0 to your Network Access in MongoDB Atlas.";
+    }
+
     res.status(500).json({ 
       status: "error", 
-      message: "❌ MongoDB Connection Error",
+      message: userFriendlyMessage,
+      actionRequired: actionRequired,
       details: error.message,
       uri: MONGODB_URI ? MONGODB_URI.replace(/:([^:@]{3,})@/, ':***@') : "Not Set"
     });
