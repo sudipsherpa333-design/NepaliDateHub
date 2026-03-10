@@ -7,4 +7,4 @@ const CommentSchema = new mongoose.Schema({
   status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
 }, { timestamps: true });
 
-export const Comment = mongoose.model("Comment", CommentSchema);
+export const Comment = (mongoose.models.Comment || mongoose.model("Comment", CommentSchema)) as any;

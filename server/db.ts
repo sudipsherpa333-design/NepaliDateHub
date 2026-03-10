@@ -3,12 +3,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URL || process.env.MONGODB_URI || process.env.mongodb_MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error("MongoDB URI is missing! Check your Vercel Env Variables.");
-}
-
 let cached = (global as any).mongoose;
 
 if (!cached) {
@@ -16,6 +10,12 @@ if (!cached) {
 }
 
 export async function connectDB() {
+  const MONGODB_URI = process.env.MONGODB_URL || process.env.MONGODB_URI || process.env.mongodb_MONGODB_URI;
+
+  if (!MONGODB_URI) {
+    throw new Error("MongoDB URI is missing! Check your Vercel Env Variables.");
+  }
+
   if (cached.conn) {
     return cached.conn;
   }

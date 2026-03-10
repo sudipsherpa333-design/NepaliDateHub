@@ -16,4 +16,4 @@ const BlogPostSchema = new mongoose.Schema({
   status: { type: String, enum: ["draft", "published"], default: "draft" },
 }, { timestamps: true });
 
-export const BlogPost = mongoose.model("BlogPost", BlogPostSchema);
+export const BlogPost = (mongoose.models.BlogPost || mongoose.model("BlogPost", BlogPostSchema)) as any;
