@@ -249,8 +249,10 @@ export function TaxCalculator() {
                 </div>
                 <input
                   type="number"
+                  min="0"
+                  step="any"
                   value={income || ""}
-                  onChange={(e) => setIncome(Number(e.target.value))}
+                  onChange={(e) => setIncome(Math.max(0, Number(e.target.value)))}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-purple-500 focus:border-purple-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                   placeholder="e.g. 1200000"
                 />
@@ -270,8 +272,10 @@ export function TaxCalculator() {
                 </label>
                 <input
                   type="number"
+                  min="0"
+                  step="any"
                   value={insurance || ""}
-                  onChange={(e) => setInsurance(Number(e.target.value))}
+                  onChange={(e) => setInsurance(Math.max(0, Number(e.target.value)))}
                   className="block w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-purple-500 focus:border-purple-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                   placeholder="Max 40,000"
                 />
@@ -282,8 +286,10 @@ export function TaxCalculator() {
                 </label>
                 <input
                   type="number"
+                  min="0"
+                  step="any"
                   value={pf || ""}
-                  onChange={(e) => setPf(Number(e.target.value))}
+                  onChange={(e) => setPf(Math.max(0, Number(e.target.value)))}
                   className="block w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-purple-500 focus:border-purple-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                   placeholder="e.g. 120000"
                 />
@@ -294,8 +300,10 @@ export function TaxCalculator() {
                 </label>
                 <input
                   type="number"
+                  min="0"
+                  step="any"
                   value={cit || ""}
-                  onChange={(e) => setCit(Number(e.target.value))}
+                  onChange={(e) => setCit(Math.max(0, Number(e.target.value)))}
                   className="block w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-purple-500 focus:border-purple-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                   placeholder="e.g. 50000"
                 />
@@ -306,8 +314,10 @@ export function TaxCalculator() {
                 </label>
                 <input
                   type="number"
+                  min="0"
+                  step="any"
                   value={ssf || ""}
-                  onChange={(e) => setSsf(Number(e.target.value))}
+                  onChange={(e) => setSsf(Math.max(0, Number(e.target.value)))}
                   className="block w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-purple-500 focus:border-purple-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                   placeholder="e.g. 0"
                 />

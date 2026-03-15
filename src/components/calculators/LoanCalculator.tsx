@@ -13,7 +13,7 @@ export function LoanCalculator() {
     const r = parseFloat(rate);
     let t = parseFloat(time);
 
-    if (isNaN(p) || isNaN(r) || isNaN(t)) return { interest: 0, total: 0 };
+    if (isNaN(p) || isNaN(r) || isNaN(t) || p <= 0 || r <= 0 || t <= 0) return { interest: 0, total: 0 };
 
     if (timeUnit === "months") {
       t = t / 12;
@@ -50,6 +50,8 @@ export function LoanCalculator() {
               </div>
               <input
                 type="number"
+                min="0"
+                step="any"
                 value={principal}
                 onChange={(e) => setPrincipal(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
@@ -68,6 +70,8 @@ export function LoanCalculator() {
               </div>
               <input
                 type="number"
+                min="0"
+                step="any"
                 value={rate}
                 onChange={(e) => setRate(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
@@ -87,6 +91,8 @@ export function LoanCalculator() {
                 </div>
                 <input
                   type="number"
+                  min="0"
+                  step="any"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-l-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"

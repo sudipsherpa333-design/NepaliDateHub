@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URL || process.env.MONGODB_URI || process.env.mongodb_MONGODB_URI;
+const MONGODB_URI = process.env.CUSTOM_MONGO_URL || process.env.MONGOURL || process.env.MONGODB_URL || process.env.MONGODB_URI || process.env.mongodb_MONGODB_URI;
 
 if (!MONGODB_URI) {
   console.error("MongoDB URI is missing! Check your Vercel Env Variables.");
@@ -42,12 +42,6 @@ app.get("/api/health", (req, res) => {
 
 app.get("/api/db-status", async (req, res) => {
   try {
-    // Attempt to connect to the database to get a true runtime status
-    await connectDB();
-    
-    // Perform a simple operation to verify read access and authentication
-    const adminCount = await AdminUser.countDocuments();
-    
     const state = mongoose.connection.readyState;
     const states = {
       0: "disconnected",
@@ -57,14 +51,41 @@ app.get("/api/db-status", async (req, res) => {
       99: "uninitialized",
     };
     
+    let currentState = states[state as keyof typeof states] || "unknown";
+
+    // Attempt to connect to the database to get a true runtime status
+    await connectDB();
+    
+    // Perform a simple operation to verify read access and authentication
+    const adminCount = await AdminUser.countDocuments();
+    
+    // Update state after connection attempt
+    const finalState = mongoose.connection.readyState;
+    currentState = states[finalState as keyof typeof states] || "unknown";
+    
     res.json({ 
-      status: states[state as keyof typeof states] || "unknown",
+      status: currentState,
       message: "🚀 MongoDB Connected Successfully!",
       adminCount: adminCount,
-      uri: MONGODB_URI ? MONGODB_URI.replace(/:([^:@]{3,})@/, ':***@') : "Not Set"
+      uri: MONGODB_URI ? MONGODB_URI.replace(/:([^:@]{3,})@/, ':***@') : "Not Set",
+      debugEnv: {
+        has_CUSTOM_MONGO_URL: !!process.env.CUSTOM_MONGO_URL,
+        has_MONGOURL: !!process.env.MONGOURL,
+        has_MONGODB_URI: !!process.env.MONGODB_URI,
+      }
     });
   } catch (error: any) {
     console.error("❌ Database Status Check Failed:", error);
+    
+    const state = mongoose.connection.readyState;
+    const states = {
+      0: "disconnected",
+      1: "connected",
+      2: "connecting",
+      3: "disconnecting",
+      99: "uninitialized",
+    };
+    const currentState = states[state as keyof typeof states] || "unknown";
     
     let userFriendlyMessage = "❌ MongoDB Connection Error";
     let actionRequired = "Check your database connection string and network settings.";
@@ -82,11 +103,16 @@ app.get("/api/db-status", async (req, res) => {
     }
 
     res.status(500).json({ 
-      status: "error", 
+      status: currentState, 
       message: userFriendlyMessage,
       actionRequired: actionRequired,
       details: error.message,
-      uri: MONGODB_URI ? MONGODB_URI.replace(/:([^:@]{3,})@/, ':***@') : "Not Set"
+      uri: MONGODB_URI ? MONGODB_URI.replace(/:([^:@]{3,})@/, ':***@') : "Not Set",
+      debugEnv: {
+        has_CUSTOM_MONGO_URL: !!process.env.CUSTOM_MONGO_URL,
+        has_MONGOURL: !!process.env.MONGOURL,
+        has_MONGODB_URI: !!process.env.MONGODB_URI,
+      }
     });
   }
 });

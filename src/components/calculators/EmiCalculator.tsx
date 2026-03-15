@@ -95,8 +95,10 @@ export function EmiCalculator() {
               </div>
               <input
                 type="number"
+                min="0"
+                step="any"
                 value={principal || ""}
-                onChange={(e) => setPrincipal(Number(e.target.value))}
+                onChange={(e) => setPrincipal(Math.max(0, Number(e.target.value)))}
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                 placeholder="e.g. 1000000"
               />
@@ -110,9 +112,10 @@ export function EmiCalculator() {
             <div className="relative">
               <input
                 type="number"
-                step="0.1"
+                min="0"
+                step="any"
                 value={rate || ""}
-                onChange={(e) => setRate(Number(e.target.value))}
+                onChange={(e) => setRate(Math.max(0, Number(e.target.value)))}
                 className="block w-full pr-8 py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                 placeholder="e.g. 10.5"
               />
@@ -129,8 +132,10 @@ export function EmiCalculator() {
             <div className="flex space-x-2">
               <input
                 type="number"
+                min="1"
+                step="1"
                 value={tenure || ""}
-                onChange={(e) => setTenure(Number(e.target.value))}
+                onChange={(e) => setTenure(Math.max(1, Number(e.target.value)))}
                 className="block w-2/3 py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                 placeholder="e.g. 5"
               />

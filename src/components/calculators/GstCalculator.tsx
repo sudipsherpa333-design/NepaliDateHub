@@ -98,8 +98,10 @@ export function GstCalculator() {
               </div>
               <input
                 type="number"
+                min="0"
+                step="any"
                 value={amount || ""}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                onChange={(e) => setAmount(Math.max(0, Number(e.target.value)))}
                 className="block w-full pl-10 pr-3 py-4 text-lg font-semibold border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-amber-500 focus:border-amber-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                 placeholder="e.g. 1000"
               />
@@ -134,9 +136,10 @@ export function GstCalculator() {
               >
                 <input
                   type="number"
-                  step="0.1"
+                  min="0"
+                  step="any"
                   value={customRate || ""}
-                  onChange={(e) => setCustomRate(Number(e.target.value))}
+                  onChange={(e) => setCustomRate(Math.max(0, Number(e.target.value)))}
                   className="block w-full pr-8 py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-amber-500 focus:border-amber-500 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                   placeholder="Enter custom rate"
                 />

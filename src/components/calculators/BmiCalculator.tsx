@@ -10,7 +10,7 @@ export function BmiCalculator() {
     const h = parseFloat(height) / 100; // convert cm to m
     const w = parseFloat(weight);
 
-    if (isNaN(h) || isNaN(w) || h === 0) return null;
+    if (isNaN(h) || isNaN(w) || h <= 0 || w <= 0) return null;
 
     const bmi = w / (h * h);
     let category = "";
@@ -58,6 +58,8 @@ export function BmiCalculator() {
               </div>
               <input
                 type="number"
+                min="0"
+                step="any"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
@@ -76,6 +78,8 @@ export function BmiCalculator() {
               </div>
               <input
                 type="number"
+                min="0"
+                step="any"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
